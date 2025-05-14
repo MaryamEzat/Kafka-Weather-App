@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cairo Weather</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #89f7fe, #66a6ff);
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffffcc;
+            border-radius: 16px;
+            padding: 30px 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #34495e;
+        }
+        .weather-icon {
+            width: 80px;
+            height: 80px;
+        }
+        .weather-info {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .label {
+            font-weight: bold;
+        }
+        #updated {
+            font-size: 14px;
+            color: #555;
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        async function fetchWeather() {
+            const res = await fetch('/weather');
+            const data = await res.json();
+
+            const box = document.getElementById('weather');
+
+            if (data.error || data.status) {
+                box.innerHTML = `<p>${data.error || data.status}</p>`;
+                return;
+            }
+
+            const iconUrl = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+            box.innerHTML = `
+                <img class="weather-icon" src="${iconUrl}" alt="Weather Icon">
+                <p class="weather-info"><span class="label">City:</span> ${data.name}, ${data.sys.country}</p>
+                <p class="weather-info"><span class="label">Temperature:</span> ${(data.main.temp - 273.15).toFixed(1)} °C</p>
+                <p class="weather-info"><span class="label">Feels Like:</span> ${(data.main.feels_like - 273.15).toFixed(1)} °C</p>
+                <p class="weather-info"><span class="label">Humidity:</span> ${data.main.humidity}%</p>
+                <p class="weather-info"><span class="label">Weather:</span> ${data.weather[0].main} (${data.weather[0].description})</p>
+                <p class="weather-info"><span class="label">Wind Speed:</span> ${data.wind.speed} m/s</p>
+                <p class="weather-info"><span class="label">Cloudiness:</span> ${data.clouds.all}%</p>
+                <p class="weather-info"><span class="label">Pressure:</span> ${data.main.pressure} hPa</p>
+                <div id="updated">Last updated: ${new Date().toLocaleTimeString()}</div>
+            `;
+        }
+
+        setInterval(fetchWeather, 5000);
+        window.onload = fetchWeather;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Live Weather</h1>
+        <div id="weather">Loading...</div>
+    </div>
+</body>
+</html>
